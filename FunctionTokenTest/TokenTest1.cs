@@ -1,3 +1,4 @@
+using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net;
@@ -21,7 +22,12 @@ namespace FunctionTokenTest
             }
 
             var headerValue = req.Headers.GetValues("Authorization");
-            var bearerValue = headerValue.FirstOrDefault(v => v.StartsWith("Bearer"));
+            var bearerValue = headerValue.FirstOrDefault(v => v.StartsWith("Bearer ")) ?? String.Empty;
+            if (String.IsNullOrWhiteSpace(bearerValue))
+            {
+                return new HttpResponseMessage(HttpStatusCode.Forbidden);
+
+            }
             var bearerToken = bearerValue.Split(' ')[1];
 
             var principal = ValidateToken(bearerToken, "MYISSUER", "MYSCOPE");
